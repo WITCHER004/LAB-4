@@ -1,0 +1,24 @@
+import os
+
+# Create a pipe: r is the read end, w is the write end
+r, w = os.pipe()
+
+pid = os.fork()
+
+if pid > 0:
+    # Parent process
+    os.close(r)  # Close unused read end in parent
+
+    os.write(w, b"Hello from parent")  # Write bytes to pipe
+    os.close(w)  # Close write end after writing
+
+    os.wait()  # Wait for child to finish
+
+else:
+    # Child process
+    os.close(w)  # Close unused write end in child
+
+    message = os.read(r, 1024)  # Read up to 1024 bytes
+    print("Child received:", message.decode())
+
+    os.close(r)  # Close read end
